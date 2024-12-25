@@ -1,10 +1,10 @@
 .PHONY: build run clean test deps build-all release-notes
 
 # 版本信息
-LATEST_VERSION := $(shell sed -n 's/## \[\(.*\)\].*/\1/p' CHANGELOG.md | head -n 1)
+VERSION := 1.0.2
 GIT_COMMIT := $(shell git rev-parse --short HEAD)
 BUILD_TIME := $(shell date -u '+%Y-%m-%d %H:%M:%S')
-LDFLAGS := -X 'main.Version=$(LATEST_VERSION)' -X 'main.BuildTime=$(BUILD_TIME)' -X 'main.GitCommit=$(GIT_COMMIT)'
+LDFLAGS := -X 'main.Version=$(VERSION)' -X 'main.BuildTime=$(BUILD_TIME)' -X 'main.GitCommit=$(GIT_COMMIT)'
 
 # 构建可执行文件
 build:
@@ -36,12 +36,14 @@ deps:
 
 # 显示版本信息
 version:
-	@echo "Version: $(LATEST_VERSION)"
+	@echo "Version: $(VERSION)"
 	@echo "Git Commit: $(GIT_COMMIT)"
 	@echo "Build Time: $(BUILD_TIME)"
 
 # 生成发布说明
 release-notes:
-	@sed -n "/## \[$(LATEST_VERSION)\]/,/## \[/p" CHANGELOG.md | sed '$$d'
+	@echo "## Release v$(VERSION)"
+	@echo ""
+	@awk '/^## \[$(VERSION)\]/{p=1;next} /^## \[/{p=0} p' CHANGELOG.md
 	@echo "\n---\n"
-	@sed -n "/## \[$(LATEST_VERSION)\]/,/## \[/p" CHANGELOG_CN.md | sed '$$d'
+	@awk '/^## \[$(VERSION)\]/{p=1;next} /^## \[/{p=0} p' CHANGELOG_CN.md
