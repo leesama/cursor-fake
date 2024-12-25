@@ -1,29 +1,71 @@
-name: Go
+name: Go Build and Release
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    tags:
+      - 'v*' # 当推送v开头的tag时触发
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # 获取完整的git历史用于生成changelog
 
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version: '1.21'
 
-    - name: Build
-      run: make build
+    - name: Build All Platforms
+      run: make build-all
 
-    - name: Test
-      run: make test
+    - name: Generate Release Notes
+      id: release_notes
+      run: |
+        VERSION=${{ github.ref_name }}
+        echo "# $VERSION 发布说明" > release_notes.md
+        
+        # 从CHANGELOG.md中提取当前版本的更新内容
+        VERSION_NO_V=$(echo $VERSION | sed 's/^v//')
+        echo -e "\n## 更新内容\n" >> release_notes.md
+        awk -v ver="$VERSION_NO_V" '
+          BEGIN { found=0; }
+          $0 ~ "^## \\[" ver "\\]" { found=1; next }
+          found && $0 ~ "^## " { exit }
+          found { print }
+        ' CHANGELOG.md >> release_notes.md
+        
+        # 添加构建信息
+        echo -e "\n## 构建信息\n" >> release_notes.md
+        echo "- 版本: $VERSION" >> release_notes.md
+        echo "- 提交: $(git rev-parse --short HEAD)" >> release_notes.md
+        echo "- 时间: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> release_notes.md
+        
+        # 添加下载说明
+        echo -e "\n## 下载\n" >> release_notes.md
+        echo "请根据您的操作系统选择对应的版本：" >> release_notes.md
+        echo "- Windows: \`cursor-fake-windows-amd64.exe\`" >> release_notes.md
+        echo "- macOS (Apple Silicon): \`cursor-fake-darwin-arm64\`" >> release_notes.md
+        echo "- macOS (Intel): \`cursor-fake-darwin-amd64\`" >> release_notes.md
+        echo "- Linux: \`cursor-fake-linux-amd64\`" >> release_notes.md
+        
+        # 添加完整更新历史链接
+        echo -e "\n## 完整更新历史\n" >> release_notes.md
+        echo "查看 [CHANGELOG.md](../../blob/main/CHANGELOG.md) 了解完整的更新历史。" >> release_notes.md
 
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v3
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
       with:
-        version: latest 
+        name: Release ${{ github.ref_name }}
+        body_path: release_notes.md
+        draft: false
+        prerelease: false
+        files: |
+          bin/cursor-fake-windows-amd64.exe
+          bin/cursor-fake-darwin-arm64
+          bin/cursor-fake-darwin-amd64
+          bin/cursor-fake-linux-amd64
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

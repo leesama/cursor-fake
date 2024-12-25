@@ -1,8 +1,21 @@
-.PHONY: build run clean test deps
+.PHONY: build run clean test deps build-all
+
+# 版本信息
+VERSION ?= 0.0.0
+GIT_COMMIT := $(shell git rev-parse --short HEAD)
+BUILD_TIME := $(shell date -u '+%Y-%m-%d %H:%M:%S')
+LDFLAGS := -X 'main.Version=$(VERSION)' -X 'main.BuildTime=$(BUILD_TIME)' -X 'main.GitCommit=$(GIT_COMMIT)'
 
 # 构建可执行文件
 build:
-	go build -o bin/cursor-fake cursor_fake.go
+	go build -ldflags "$(LDFLAGS)" -o bin/cursor-fake cursor_fake.go
+
+# 构建所有平台版本
+build-all:
+	GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o bin/cursor-fake-darwin-arm64 cursor_fake.go
+	GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin/cursor-fake-darwin-amd64 cursor_fake.go
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin/cursor-fake-linux-amd64 cursor_fake.go
+	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin/cursor-fake-windows-amd64.exe cursor_fake.go
 
 # 运行程序
 run:
@@ -20,3 +33,9 @@ test:
 # 更新依赖
 deps:
 	go mod tidy
+
+# 显示版本信息
+version:
+	@echo "Version: $(VERSION)"
+	@echo "Git Commit: $(GIT_COMMIT)"
+	@echo "Build Time: $(BUILD_TIME)"

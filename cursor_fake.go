@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"math/rand"
 	"os"
@@ -58,7 +59,24 @@ func generateHexUUID() string {
 		string(uuid[20:32]))
 }
 
+// 显示版本信息
+func showVersion() {
+	fmt.Printf("Cursor Fake v%s\n", Version)
+	fmt.Printf("Git Commit: %s\n", GitCommit)
+	fmt.Printf("Build Time: %s\n", BuildTime)
+}
+
 func main() {
+	// 解析命令行参数
+	versionFlag := flag.Bool("v", false, "显示版本信息")
+	flag.Parse()
+
+	// 如果指定了版本标志，显示版本信息并退出
+	if *versionFlag {
+		showVersion()
+		return
+	}
+
 	// 初始化随机数种子
 	rand.Seed(time.Now().UnixNano())
 
@@ -96,7 +114,7 @@ func main() {
 	jsonData["telemetry.machineId"] = newMachineId
 	jsonData["telemetry.devDeviceId"] = newDevDeviceId
 
-	// 转换���JSON并格式化
+	// 转换为JSON并格式化
 	newData, err := json.MarshalIndent(jsonData, "", "  ")
 	if err != nil {
 		fmt.Printf("Error converting to JSON: %v\n", err)
@@ -112,6 +130,7 @@ func main() {
 	}
 
 	// 打印结果
+	fmt.Printf("\nCursor Fake v%s\n", Version)
 	fmt.Println("Success!")
 	fmt.Printf("Path: %s\n", storagePath)
 	fmt.Printf("New macMachineId: %s\n", newMacMachineId)
