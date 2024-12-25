@@ -42,6 +42,6 @@ version:
 
 # 生成发布说明
 release-notes:
-	@sed -n "/## \[$(LATEST_VERSION)\]/,/## \[/p" CHANGELOG.md | sed '$$d' > release-notes.md
-	@echo "\n---\n" >> release-notes.md
-	@sed -n "/## \[$(LATEST_VERSION)\]/,/## \[/p" CHANGELOG_CN.md | sed '$$d' >> release-notes.md
+	@sed -n "/## \[$(LATEST_VERSION)\]/,/## \[/p" CHANGELOG.md | sed '$$d'
+	@echo "\n---\n"
+	@sed -n "/## \[$(LATEST_VERSION)\]/,/## \[/p" CHANGELOG_CN.md | sed '$$d'
