@@ -9,8 +9,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Support resetting Cursor IDE device identifiers
-- Auto-generate new macMachineId and machineId
-- Auto-generate new devDeviceId
+- Auto-generate new machineId and devDeviceId
 - Cross-platform support (Windows, macOS, Linux)
-- One-click operation interface
-- Automated multi-platform build and release 
