@@ -41,11 +41,13 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          LDFLAGS="-X main.version=${VERSION}"
-          GOOS=darwin GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o cursor-fake-darwin-amd64
-          GOOS=darwin GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o cursor-fake-darwin-arm64
-          GOOS=linux GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o cursor-fake-linux-amd64
-          GOOS=windows GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o cursor-fake-windows-amd64.exe
+          make build-all
+
+      - name: Generate Release Notes
+        if: steps.check_tag.outputs.exists == 'false'
+        id: release_notes
+        run: |
+          make release-notes > release_notes.txt
 
       - name: Create Release
         if: steps.check_tag.outputs.exists == 'false'
@@ -53,13 +55,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          CHANGELOG_CONTENT=$(sed -n "/## \[\${VERSION}\]/,/## \[/p" CHANGELOG.md | sed '$d' | sed '1d' | sed '/^$/d')
-          
           gh release create "$VERSION" \
-            cursor-fake-darwin-amd64 \
-            cursor-fake-darwin-arm64 \
-            cursor-fake-linux-amd64 \
-            cursor-fake-windows-amd64.exe \
+            bin/cursor-fake-darwin-amd64 \
+            bin/cursor-fake-darwin-arm64 \
+            bin/cursor-fake-linux-amd64 \
+            bin/cursor-fake-windows-amd64.exe \
             --title "Release $VERSION" \
-            --notes "$CHANGELOG_CONTENT" \
+            --notes-file release_notes.txt \
             --target main 
