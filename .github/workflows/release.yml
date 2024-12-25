@@ -53,7 +53,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          CHANGELOG_CONTENT=$(awk "/## \[$VERSION\]/,/## \[.*\]/ { if (!/## \[.*\]/ || NR==1) print }" CHANGELOG.md | sed '1d')
+          CHANGELOG_CONTENT=$(sed -n "/## \[\${VERSION}\]/,/## \[/p" CHANGELOG.md | sed '$d' | sed '1d' | sed '/^$/d')
           
           gh release create "$VERSION" \
             cursor-fake-darwin-amd64 \
