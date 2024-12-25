@@ -1,7 +1,11 @@
 .PHONY: build run clean test deps build-all release-notes
 
 # 版本信息
-VERSION := 1.0.2
+define get_version
+$(shell grep -m1 "^## \[" CHANGELOG.md | cut -d[ -f2 | cut -d] -f1)
+endef
+
+VERSION := $(call get_version)
 GIT_COMMIT := $(shell git rev-parse --short HEAD)
 BUILD_TIME := $(shell date -u '+%Y-%m-%d %H:%M:%S')
 LDFLAGS := -X 'main.Version=$(VERSION)' -X 'main.BuildTime=$(BUILD_TIME)' -X 'main.GitCommit=$(GIT_COMMIT)'
