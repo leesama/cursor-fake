@@ -7,11 +7,9 @@
 ## 功能特点
 
 - 重置Cursor IDE设备标识
-- 生成新的macMachineId和machineId
-- 创建新的devDeviceId
+- 生成新的 machineId 和 devDeviceId
 - 跨平台支持（Windows、macOS、Linux）
 - 简单的一键操作
-- 自动化的多平台发布
 
 ## 工具作用
 
@@ -19,7 +17,6 @@
 - 重置Cursor IDE的设备识别
 - 为系统生成新的机器ID
 - 为Cursor创建新的设备ID
-- 修改storage.json配置文件
 
 工具将生成：
 - 新的macMachineId
