@@ -38,11 +38,14 @@ jobs:
 
       - name: Build
         if: steps.check_tag.outputs.exists == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          GOOS=darwin GOARCH=amd64 go build -o cursor-fake-darwin-amd64
-          GOOS=darwin GOARCH=arm64 go build -o cursor-fake-darwin-arm64
-          GOOS=linux GOARCH=amd64 go build -o cursor-fake-linux-amd64
-          GOOS=windows GOARCH=amd64 go build -o cursor-fake-windows-amd64.exe
+          LDFLAGS="-X main.version=${VERSION}"
+          GOOS=darwin GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o cursor-fake-darwin-amd64
+          GOOS=darwin GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o cursor-fake-darwin-arm64
+          GOOS=linux GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o cursor-fake-linux-amd64
+          GOOS=windows GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o cursor-fake-windows-amd64.exe
 
       - name: Create Release
         if: steps.check_tag.outputs.exists == 'false'

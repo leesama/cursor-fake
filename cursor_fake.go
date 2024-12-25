@@ -11,6 +11,11 @@ import (
 	"time"
 )
 
+// 在编译时通过 -ldflags 注入的版本信息
+var (
+	version = "dev"
+)
+
 // 获取存储路径
 func getStoragePath() string {
 	home, err := os.UserHomeDir()
@@ -45,7 +50,7 @@ func generateRandomHex64() string {
 	return string(result)
 }
 
-// 生成UUID格式的字符串
+// 生成UUID式的字符串
 func generateHexUUID() string {
 	uuid := make([]byte, 32)
 	for i := range uuid {
@@ -61,9 +66,8 @@ func generateHexUUID() string {
 
 // 显示版本信息
 func showVersion() {
-	fmt.Printf("Cursor Fake v%s\n", Version)
-	fmt.Printf("Git Commit: %s\n", GitCommit)
-	fmt.Printf("Build Time: %s\n", BuildTime)
+	fmt.Printf("Cursor Fake v%s\n", version)
+	fmt.Println("A tool to reset Cursor IDE device IDs")
 }
 
 func main() {
@@ -130,7 +134,7 @@ func main() {
 	}
 
 	// 打印结果
-	fmt.Printf("\nCursor Fake v%s\n", Version)
+	fmt.Printf("\nCursor Fake v%s\n", version)
 	fmt.Println("Success!")
 	fmt.Printf("Path: %s\n", storagePath)
 	fmt.Printf("New macMachineId: %s\n", newMacMachineId)
